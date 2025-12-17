@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ac127d4ae041548217b14962fdf807, type: 3}
+  m_Name: ExportPreset Console PS5
+  m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportPreset
+  presetType: 5
+  presetNameOverride: 
+  entries:
+  - entryName: TrophyLogo
+    note: A sort of game banner for trophies page
+    resolution: {x: 512, y: 512}
+    fileFormat: 1
+    entryTagMask: 5
+    duration: 0

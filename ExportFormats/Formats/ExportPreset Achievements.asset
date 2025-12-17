@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ac127d4ae041548217b14962fdf807, type: 3}
+  m_Name: ExportPreset Achievements
+  m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportPreset
+  presetType: 11
+  presetNameOverride: Achivements
+  entries:
+  - entryName: Steam
+    note: For best results, achievement icons should be 256x256 px JPG images. They
+      can be as small as 64x64, but it is recommended you use the larger size. We
+      recommend that achieved icons be colorful; unachieved icons should be grayscale.
+    resolution: {x: 256, y: 256}
+    fileFormat: 0
+    entryTagMask: 4
+    duration: 4
+  - entryName: PS5
+    note: 
+    resolution: {x: 512, y: 512}
+    fileFormat: 1
+    entryTagMask: 4
+    duration: 4
+  - entryName: Xbox
+    note: 
+    resolution: {x: 1920, y: 1080}
+    fileFormat: 1
+    entryTagMask: 4
+    duration: 4

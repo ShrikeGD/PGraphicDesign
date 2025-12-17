@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ac127d4ae041548217b14962fdf807, type: 3}
+  m_Name: ExportPreset Logo
+  m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportPreset
+  presetType: 1
+  presetNameOverride: Steam
+  entries:
+  - entryName: Logo
+    note: Logo for steam (this has flexible sizes actually, check steam)
+    resolution: {x: 1280, y: 720}
+    fileFormat: 1
+    entryTagMask: 1
+    duration: 4
