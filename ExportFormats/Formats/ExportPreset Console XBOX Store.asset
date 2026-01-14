@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59ac127d4ae041548217b14962fdf807, type: 3}
+  m_Name: ExportPreset Console XBOX Store
+  m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportPreset
+  presetType: 4
+  presetNameOverride: 
+  entries:
+  - entryName: SuperHeroArt
+    note: No Logo
+    resolution: {x: 1920, y: 1080}
+    fileFormat: 1
+    entryTagMask: 4
+    duration: 0
+  - entryName: ApptileIcon
+    note: 
+    resolution: {x: 300, y: 300}
+    fileFormat: 1
+    entryTagMask: 5
+    duration: 0
+  - entryName: 9:16 Poster Art
+    note: Logo
+    resolution: {x: 1440, y: 2160}
+    fileFormat: 1
+    entryTagMask: 5
+    duration: 0
+  - entryName: Featured Promotional Square Art
+    note: No title!
+    resolution: {x: 1080, y: 1080}
+    fileFormat: 1
+    entryTagMask: 4
+    duration: 0
+  - entryName: Titled Hero Art
+    note: MUST HAVE LOGO ON TOP 3/4! Extra text can be on bottom.
+    resolution: {x: 1920, y: 1080}
+    fileFormat: 1
+    entryTagMask: -1
+    duration: 0
+  - entryName: Branded Key Art
+    note: MUST HAVE LOGO ON TOP 3/4! Extra text can be on bottom.
+    resolution: {x: 584, y: 800}
+    fileFormat: 1
+    entryTagMask: -1
+    duration: 0
+  - entryName: 1:1 Box Art
+    note: 
+    resolution: {x: 1080, y: 1080}
+    fileFormat: 1
+    entryTagMask: -1
+    duration: 0

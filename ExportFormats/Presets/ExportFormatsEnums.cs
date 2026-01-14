@@ -25,7 +25,8 @@ namespace GameExport
     public enum FileFormat
     {
         JPG,
-        PNG,
+        PNG, //with alpha, default
+        PNG24, //playstation wants without alpha ..
         ICO,
         GIF,
         MP4

@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30ffb362f42849b6b69c58e7c193cc0b, type: 3}
-  m_Name: ExportRegistry SteamPagesHorizontal
+  m_Name: ExportRegistry PS5
   m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportRegistry
   rootFolderPath: C:\Users\User\Desktop\Export
   productTitle: Steam Full
   presets:
-  - {fileID: 11400000, guid: 76bcafd8f06164b45b3863a9d1a5aeab, type: 2}
-  - {fileID: 11400000, guid: 4b9bda3b1d2878a40bef820b3456e397, type: 2}
-  - {fileID: 11400000, guid: 6621740eead38ac4291ed922d16ec282, type: 2}
+  - {fileID: 11400000, guid: 3cbc6c0aa9e9cc946af65b119034db96, type: 2}
+  - {fileID: 11400000, guid: 6404af8c13948ce4f8a63acc7e3d3e71, type: 2}
+  - {fileID: 11400000, guid: a78afd2a4f2394545844a7db5b8af9ff, type: 2}

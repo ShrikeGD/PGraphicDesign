@@ -58,22 +58,29 @@ namespace GameExport
                     string fileName = ExportPaths.BuildFileName(preset.presetType, e, currentExportName);
                     string fullPath = Path.Combine(presetFolder, fileName);
 
-                    // For Edit Mode, we use CaptureUtil (now handles HDR/Linear fix)
+                    if (e.dontOverwrite && File.Exists(fullPath))
+                    {
+                        Debug.Log($"[Export] Skipped (dontOverwrite): {fullPath}");
+                        continue;
+                    }
+
+                    // FIX: PNG24 must be handled here too (was skipped before)
                     switch (e.fileFormat)
                     {
                         case FileFormat.JPG:
                         case FileFormat.PNG:
+                        case FileFormat.PNG24:
                         case FileFormat.ICO:
                             CaptureUtil.CaptureScreenshot(fullPath, w, h, e.fileFormat);
                             break;
-                            
+
                         case FileFormat.GIF:
                         case FileFormat.MP4:
                             HandleVideoExport(e, w, h, fullPath);
                             break;
                     }
                 }
-                
+
                 AssetDatabase.Refresh();
             }
             finally
@@ -86,6 +93,85 @@ namespace GameExport
             return presetFolder;
         }
 
+        /// <summary>
+        /// NEW: Export a single entry from a preset (Edit Mode).
+        /// Uses the same tag masking + dontOverwrite semantics as ExportPresetAndGetFolder.
+        /// </summary>
+        public static string ExportSingleEntryAndGetFolder(
+            ExportRegistry registry,
+            ExportPreset preset,
+            ExportEntry entry,
+            string currentExportName,
+            ExportTag windowTagMask,
+            bool openFolderAfter = false)
+        {
+            string root = ExportPaths.ResolveRootFolder(registry.rootFolderPath);
+            string presetFolder = ExportPaths.GetPresetFolder(root, preset.presetType);
+
+            var originalSnapshot = ExportTagMasking.SnapshotAllTags();
+
+            try
+            {
+                if (preset == null || entry.Equals(null))
+                {
+                    Debug.LogWarning("[Export] Cannot export single entry: preset or entry is null.");
+                    return presetFolder;
+                }
+
+                int w = Mathf.RoundToInt(entry.resolution.x);
+                int h = Mathf.RoundToInt(entry.resolution.y);
+                if (w <= 0 || h <= 0)
+                {
+                    Debug.LogWarning($"[Export] Skipped single entry (invalid res): {entry.entryName} {w}x{h}");
+                    return presetFolder;
+                }
+
+                // Apply tag mask for this entry
+                ExportTag effectiveMask = (entry.entryTagMask != ExportTag.None) ? entry.entryTagMask : windowTagMask;
+                ExportTagMasking.SetTagMaskNoSnapshot(effectiveMask);
+
+                // Progress bar (single step)
+                bool cancel = EditorUtility.DisplayCancelableProgressBar(
+                    $"Exporting Entry: {preset.GetDisplayName()}",
+                    $"{entry.entryName}  •  {w}x{h}  /  {entry.fileFormat}",
+                    0.5f
+                );
+                if (cancel) return presetFolder;
+
+                string fileName = ExportPaths.BuildFileName(preset.presetType, entry, currentExportName);
+                string fullPath = Path.Combine(presetFolder, fileName);
+
+                if (entry.dontOverwrite && File.Exists(fullPath))
+                {
+                    Debug.Log($"[Export] Skipped (dontOverwrite): {fullPath}");
+                    return presetFolder;
+                }
+
+                switch (entry.fileFormat)
+                {
+                    case FileFormat.JPG:
+                    case FileFormat.PNG:
+                    case FileFormat.PNG24:
+                    case FileFormat.ICO:
+                        CaptureUtil.CaptureScreenshot(fullPath, w, h, entry.fileFormat);
+                        break;
+
+                    case FileFormat.GIF:
+                    case FileFormat.MP4:
+                        HandleVideoExport(entry, w, h, fullPath);
+                        break;
+                }
+
+                AssetDatabase.Refresh();
+                return presetFolder;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+                ExportTagMasking.RestoreTagSnapshot(originalSnapshot);
+            }
+        }
+
         public static string ExportAllAndGetFolder(
             ExportRegistry registry,
             string currentExportName,
@@ -94,7 +180,7 @@ namespace GameExport
         {
             string root = ExportPaths.ResolveRootFolder(registry.rootFolderPath);
             var allPresets = new List<ExportPreset>(registry.ValidPresets());
-            
+
             var originalSnapshot = ExportTagMasking.SnapshotAllTags();
 
             try
@@ -117,15 +203,34 @@ namespace GameExport
                         ExportTag effectiveMask = (e.entryTagMask != ExportTag.None) ? e.entryTagMask : windowTagMask;
                         ExportTagMasking.SetTagMaskNoSnapshot(effectiveMask);
 
-                        if (EditorUtility.DisplayCancelableProgressBar("Exporting All", $"{preset.GetDisplayName()} - {e.entryName}", (float)currentIdx / grandTotal))
+                        if (EditorUtility.DisplayCancelableProgressBar(
+                                "Exporting All",
+                                $"{preset.GetDisplayName()} - {e.entryName}",
+                                grandTotal <= 0 ? 1f : (float)currentIdx / grandTotal))
                             goto FINISH;
+
+                        // Guard invalid res to avoid odd capture errors
+                        if (w <= 0 || h <= 0)
+                        {
+                            currentIdx++;
+                            continue;
+                        }
 
                         string fileName = ExportPaths.BuildFileName(preset.presetType, e, currentExportName);
                         string fullPath = Path.Combine(presetFolder, fileName);
 
+                        // FIX: Export ALL must respect dontOverwrite too (was missing)
+                        if (e.dontOverwrite && File.Exists(fullPath))
+                        {
+                            Debug.Log($"[Export] Skipped (dontOverwrite): {fullPath}");
+                            currentIdx++;
+                            continue;
+                        }
+
                         if (e.fileFormat == FileFormat.GIF || e.fileFormat == FileFormat.MP4)
-                             HandleVideoExport(e, w, h, fullPath);
-                        else CaptureUtil.CaptureScreenshot(fullPath, w, h, e.fileFormat);
+                            HandleVideoExport(e, w, h, fullPath);
+                        else
+                            CaptureUtil.CaptureScreenshot(fullPath, w, h, e.fileFormat); // includes PNG24 safely
 
                         currentIdx++;
                     }
@@ -149,12 +254,13 @@ namespace GameExport
             // Simple wrapper for the ffmpeg logic
             int fps = e.fileFormat == FileFormat.GIF ? 12 : 30;
             int frames = Mathf.Max(1, Mathf.RoundToInt(fps * Mathf.Max(0.01f, e.duration)));
-            
-            var cam = Camera.main; 
+
+            var cam = Camera.main;
             GameObject tempCam = null;
-            if (cam == null) {
-                 tempCam = new GameObject("~TempCam"); 
-                 cam = tempCam.AddComponent<Camera>(); 
+            if (cam == null)
+            {
+                tempCam = new GameObject("~TempCam");
+                cam = tempCam.AddComponent<Camera>();
             }
 
             if (e.fileFormat == FileFormat.GIF)
@@ -231,15 +337,23 @@ namespace GameExport
         // ===================================================================================
 
         // RESTORED: These methods are required by ExportWindow.cs to compile.
-        
+
         public static string ResolveRootFolder(string input) => ExportPaths.ResolveRootFolder(input);
-        
+
         public static string GetPresetFolder(string root, PresetType type) => ExportPaths.GetPresetFolder(root, type);
-        
-        public static string BuildFileName(PresetType presetType, ExportEntry e, string currentExportName) 
+
+        public static string BuildFileName(PresetType presetType, ExportEntry e, string currentExportName)
             => ExportPaths.BuildFileName(presetType, e, currentExportName);
-        
-        public static void OpenFolder(string absolutePath) => ExportPaths.OpenFolder(absolutePath);
+
+        public static void OpenFolder(string absolutePath)
+        {
+            if (string.IsNullOrEmpty(absolutePath) || !Directory.Exists(absolutePath))
+            {
+                Debug.LogWarning($"[Export] Folder does not exist: {absolutePath}");
+                return;
+            }
+            Application.OpenURL($"file://{absolutePath}");
+        }
 
         public static string PreviewPath(ExportRegistry registry, ExportPreset preset, ExportEntry e, string currentExportName)
         {

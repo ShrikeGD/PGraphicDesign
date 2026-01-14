@@ -38,17 +38,17 @@ namespace GameExport
 
         public static string BuildFileName(PresetType presetType, ExportEntry e, string currentExportName)
         {
-            string typeStr = Sanitize(presetType.ToString());
             string entryStr = Sanitize(e.entryName);
             string resStr = $"{Mathf.RoundToInt(e.resolution.x)}x{Mathf.RoundToInt(e.resolution.y)}";
             string ext = GetExt(e.fileFormat);
 
             if (string.IsNullOrWhiteSpace(currentExportName))
-                return $"{typeStr}_{entryStr}_{resStr}.{ext}";
+                return $"{entryStr}_{resStr}.{ext}";
 
             string suffix = Sanitize(currentExportName);
-            return $"{typeStr}_{entryStr}_{resStr}_{suffix}.{ext}";
+            return $"{entryStr}_{resStr}_{suffix}.{ext}";
         }
+
 
         public static void OpenFolder(string absolutePath)
         {
@@ -80,6 +80,7 @@ namespace GameExport
             {
                 FileFormat.JPG => "jpg",
                 FileFormat.PNG => "png",
+                FileFormat.PNG24 => "png", // Add this
                 FileFormat.ICO => "ico",
                 FileFormat.GIF => "gif",
                 FileFormat.MP4 => "mp4",

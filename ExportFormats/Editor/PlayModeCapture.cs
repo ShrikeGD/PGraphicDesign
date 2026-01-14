@@ -79,6 +79,12 @@ namespace GameExport
 
                 string fileName = ExportPaths.BuildFileName(preset.presetType, e, job.currentExportName);
                 string fullPath = Path.Combine(presetFolder, fileName);
+                
+                if (e.dontOverwrite && File.Exists(fullPath))
+                {
+                    Debug.Log($"[Export] Skipped (dontOverwrite): {fullPath}");
+                    continue;
+                }
 
                 // 1. Capture Raw Screen
                 var rawTex = ScreenCapture.CaptureScreenshotAsTexture();
@@ -89,20 +95,28 @@ namespace GameExport
                     // If we are in Linear space, the screenshot is likely Linear. 
                     // We must Blit it to an sRGB RenderTexture to bake the Gamma curve.
                     Texture2D finalTex = rawTex;
-                    bool converted = false;
+                    bool needsDestroy = false;
 
+// Convert to sRGB if Linear
                     if (QualitySettings.activeColorSpace == ColorSpace.Linear)
                     {
-                        finalTex = ConvertToSRGB(rawTex);
-                        converted = true;
+                        finalTex = ConvertToSRGB(rawTex, e.fileFormat == FileFormat.PNG24);
+                        needsDestroy = true;
+                    }
+                    else if (e.fileFormat == FileFormat.PNG24)
+                    {
+                        // Not Linear, but still need to strip Alpha for PNG24
+                        finalTex = StripAlpha(rawTex);
+                        needsDestroy = true;
                     }
 
-                    // 3. Save
-                    byte[] bytes = e.fileFormat == FileFormat.JPG ? finalTex.EncodeToJPG(90) : finalTex.EncodeToPNG();
-                    File.WriteAllBytes(fullPath, bytes);
+// 3. Save
+                    byte[] bytes;
+                    if (e.fileFormat == FileFormat.JPG) bytes = finalTex.EncodeToJPG(90);
+                    else bytes = finalTex.EncodeToPNG(); // This handles PNG and PNG24 correctly if finalTex is RGB24
 
-                    // Cleanup
-                    if (converted) Destroy(finalTex);
+                    File.WriteAllBytes(fullPath, bytes);
+                    if (needsDestroy) Destroy(finalTex);
                     Destroy(rawTex);
                 }
 
@@ -147,6 +161,33 @@ namespace GameExport
         private void CleanUp()
         {
             if (gameObject != null) Destroy(gameObject);
+        }
+        
+        private Texture2D ConvertToSRGB(Texture2D source, bool stripAlpha)
+        {
+            // If stripAlpha is true, we use RGB24
+            TextureFormat targetFormat = stripAlpha ? TextureFormat.RGB24 : TextureFormat.RGBA32;
+            var rt = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+    
+            Graphics.Blit(source, rt);
+    
+            var result = new Texture2D(source.width, source.height, targetFormat, false);
+            var prev = RenderTexture.active;
+            RenderTexture.active = rt;
+            result.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0);
+            result.Apply();
+    
+            RenderTexture.active = prev;
+            RenderTexture.ReleaseTemporary(rt);
+            return result;
+        }
+
+        private Texture2D StripAlpha(Texture2D source)
+        {
+            var result = new Texture2D(source.width, source.height, TextureFormat.RGB24, false);
+            result.SetPixels(source.GetPixels());
+            result.Apply();
+            return result;
         }
     }
 }

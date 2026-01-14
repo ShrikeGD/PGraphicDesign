@@ -45,9 +45,14 @@ namespace GameExport
         
         public ExportTag entryTagMask;
 
-
         [Tooltip("Duration in seconds (GIF/MP4). Ignored for static images.")]
         public float duration;
+        
+        [Tooltip("This is for when there is a special case you want to see in the folder but you dont want to override it, " +
+                 "like a custom logo which the editor dosnt support but you want to see the export format in explorer still ")]
+        public bool dontOverwrite;
+
+        
 
         
 

@@ -21,7 +21,8 @@ namespace GameExport
         public static void CaptureScreenshot(string fullPath, int w, int h, FileFormat format)
         {
             var rt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32);
-            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false);
+            TextureFormat texFormat = (format == FileFormat.PNG24) ? TextureFormat.RGB24 : TextureFormat.RGBA32;
+            var tex = new Texture2D(w, h, texFormat, false);
 
             var cam = Camera.main;
             GameObject tempGo = null;
@@ -49,6 +50,7 @@ namespace GameExport
             {
                 FileFormat.JPG => tex.EncodeToJPG(70),
                 FileFormat.PNG => tex.EncodeToPNG(),
+                FileFormat.PNG24 => tex.EncodeToPNG(),
                 FileFormat.ICO => tex.EncodeToPNG(), // placeholder
                 _ => tex.EncodeToPNG()
             };

@@ -21,3 +21,4 @@ MonoBehaviour:
     fileFormat: 1
     entryTagMask: 5
     duration: 0
+    dontOverwrite: 1
