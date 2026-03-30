@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30ffb362f42849b6b69c58e7c193cc0b, type: 3}
-  m_Name: ExportRegistry News Blog
+  m_Name: ExportRegistry News Blog Ads
   m_EditorClassIdentifier: Assembly-CSharp::GameExport.ExportRegistry
   rootFolderPath: C:\Users\User\Desktop\Export
   productTitle: Steam Full
   presets:
   - {fileID: 11400000, guid: 4c843618e56d23b4681454d4a6308807, type: 2}
+  - {fileID: 11400000, guid: 29670c8e015f3f04ea65704103c5f54a, type: 2}
